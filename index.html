@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Future Scanner</title>
+
+<style>
+:root{
+  --green:#00ff88;
+  --bg1:#0b0f1a;
+  --bg2:#000;
+}
+
+*{
+  box-sizing:border-box;
+  font-family:'Courier New', monospace;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+}
+
+body{
+  margin:0;
+  background:radial-gradient(circle at top, var(--bg1), var(--bg2));
+  color:var(--green);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.container{
+  width:100%;
+  max-width:420px;
+  min-height:100svh;
+  padding:clamp(16px, 4vw, 28px);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  background:rgba(0,0,0,0.55);
+  border:1px solid rgba(0,255,136,.4);
+  box-shadow:0 0 50px rgba(0,255,136,.15);
+}
+
+h1{
+  font-size:clamp(1.1rem, 4vw, 1.5rem);
+  margin-bottom:14px;
+  letter-spacing:0.12em;
+}
+
+input, button{
+  width:100%;
+  padding:clamp(12px, 3.5vw, 14px);
+  margin-top:12px;
+  background:#000;
+  border:1px solid var(--green);
+  color:var(--green);
+  font-size:clamp(.9rem, 3vw, 1rem);
+}
+
+button{
+  cursor:pointer;
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+#step-scan, #step-result{
+  display:none;
+}
+
+.scanner{
+  width:min(60vw, 180px);
+  aspect-ratio:1/1;
+  border:2px solid var(--green);
+  border-radius:50%;
+  margin:22px auto;
+  position:relative;
+  overflow:hidden;
+}
+
+.scanner::after{
+  content:'';
+  position:absolute;
+  inset:-120% 0 auto 0;
+  height:120%;
+  background:linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0,255,136,.7),
+    transparent
+  );
+  animation:scan 1.2s linear infinite;
+}
+
+@keyframes scan{
+  to{ transform:translateY(120%); }
+}
+
+#log{
+  text-align:left;
+  font-size:clamp(.75rem, 2.6vw, .85rem);
+  margin-top:10px;
+  height:clamp(90px, 22vh, 140px);
+  overflow:hidden;
+}
+
+#prediction{
+  margin-top:16px;
+  font-size:clamp(.95rem, 3.4vw, 1.1rem);
+  line-height:1.6;
+}
+
+/* VIDEO MODAL */
+.video-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.96);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.video-wrap{
+  width:100%;
+  max-width:420px;
+  text-align:center;
+}
+
+.video-text{
+  margin-bottom:14px;
+  font-size:clamp(1rem, 3.5vw, 1.2rem);
+  color:#fff;
+  opacity:0.9;
+}
+
+.video-modal video{
+  width:92vw;
+  max-width:420px;
+  border:1px solid var(--green);
+  box-shadow:0 0 40px rgba(0,255,136,.35);
+}
+
+@media (max-height:600px){
+  .container{
+    justify-content:flex-start;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div id="step-name">
+    <h1>Future Prediction Interface</h1>
+    <input id="username" placeholder="Enter your name">
+    <button id="startBtn">Begin Scan</button>
+  </div>
+
+  <div id="step-scan">
+    <h1 id="scanText"></h1>
+    <div class="scanner"></div>
+    <div id="log"></div>
+  </div>
+
+  <div id="step-result">
+    <h1>Prediction Complete</h1>
+    <div id="prediction"></div>
+  </div>
+
+</div>
+
+<!-- VIDEO POPUP -->
+<div id="videoModal" class="video-modal">
+  <div class="video-wrap">
+    <div class="video-text">future ka kya karoge :)</div>
+    <video id="video" loop playsinline preload="auto">
+      <source src="./assets/video.mp4" type="video/mp4">
+    </video>
+  </div>
+</div>
+
+<script>
+const logs=[
+  'Extracting biometric entropy…',
+  'Decrypting subconscious patterns…',
+  'Mapping unresolved trauma loops…',
+  'Simulating irreversible choices…',
+  'Calculating loneliness index…',
+  'Predicting regret probability…',
+  'Collapsing future waveform…'
+];
+
+const predictions=[
+  n=>`${n}, you will outgrow people who once felt permanent.`,
+  n=>`A delayed decision will decide itself against you, ${n}.`,
+  n=>`${n}, someone you trust now will become a lesson later.`,
+  n=>`Comfort ends soon, ${n}. Growth begins.`,
+  n=>`${n}, your future changes when you stop waiting.`,
+  n=>`What comes next will test who you really are, ${n}.`
+];
+
+function startScan(){
+  const name=document.getElementById('username').value.trim();
+  if(!name) return;
+
+  toggle('step-name','none');
+  toggle('step-scan','block');
+
+  document.getElementById('scanText').textContent=
+    `Place your thumb on the scanner, ${name}.`;
+
+  const log=document.getElementById('log');
+  log.innerHTML='';
+  let i=0;
+
+  const iv=setInterval(()=>{
+    log.innerHTML+='> '+logs[Math.floor(Math.random()*logs.length)]+'<br>';
+    if(++i>=7){
+      clearInterval(iv);
+      setTimeout(()=>showResult(name),1200);
+    }
+  },650);
+}
+
+function showResult(name){
+  toggle('step-scan','none');
+  toggle('step-result','block');
+
+  document.getElementById('prediction').textContent=
+    predictions[Math.floor(Math.random()*predictions.length)](name);
+
+  setTimeout(()=>{
+    const modal=document.getElementById('videoModal');
+    const video=document.getElementById('video');
+    modal.style.display='flex';
+    video.load();
+    video.play().catch(()=>{});
+  },1000);
+}
+
+function toggle(id,display){
+  document.getElementById(id).style.display=display;
+}
+
+document.getElementById('startBtn').addEventListener('click', startScan);
+</script>
+
+</body>
+</html>
